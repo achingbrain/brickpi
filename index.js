@@ -1,4 +1,4 @@
 
-var BrickPi = require('lib/BrickPi')
+var BrickPi = require(__dirname + '/lib/BrickPi')
 
 module.exports = BrickPi
