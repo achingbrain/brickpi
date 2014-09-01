@@ -1,0 +1,14 @@
+{
+  "name": "brickpi",
+  "version": "0.0.1",
+  "description": "Node.js bindings for the BrickPi",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/achingbrain/brickpi.git"
+  },
+  "dependencies": {
+    "serialport": "^1.0",
+    "pi-pins": "^1.0"
+  }
+}
