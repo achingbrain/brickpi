@@ -7,8 +7,21 @@
     "type": "git",
     "url": "git://github.com/achingbrain/brickpi.git"
   },
+  "scripts": {
+    "test": "istanbul cover ./node_modules/mocha/bin/_mocha",
+    "coveralls": "istanbul cover _mocha && cat ./coverage/lcov.info | coveralls"
+  },
   "dependencies": {
     "serialport": "^1.0",
-    "pi-pins": "^1.0"
+    "pi-pins": "^1.0",
+    "async": "^0.9"
+  },
+  "devDependencies": {
+    "mocha": "^1.18",
+    "chai": "^1.9",
+    "istanbul": "^0.3",
+    "sinon": "^1.9",
+    "coveralls": "^2.8",
+    "proxyquire": "^1.0"
   }
 }
