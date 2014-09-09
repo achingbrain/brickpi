@@ -1,6 +1,7 @@
 var expect = require('chai').expect,
   sinon = require('sinon'),
-  proxyquire = require('proxyquire')
+  proxyquire = require('proxyquire'),
+  PROTOCOL = require('../lib/Protocol')
 
 describe('BrickPi', function() {
 
@@ -26,7 +27,7 @@ describe('BrickPi', function() {
 
     done()
   })
-
+/*
   it('should have two LEDs', function() {
     var brickPi = new BrickPi()
 
@@ -111,5 +112,26 @@ describe('BrickPi', function() {
     var checksum = 1
 
     brickPi._readFromBrickPi([checksum, data.length].concat(data))
+  })
+*/
+  it('should set up sensors', function(done) {
+    var brickPi = new BrickPi()
+    brickPi._serialPort = {
+      write: sinon.stub(),
+      flush: sinon.stub()
+    }
+
+    brickPi._serialPort.flush.callsArg(0)
+    brickPi._serialPort.write.callsArg(1)
+
+    brickPi.addSensor(new BrickPi.Sensors.Colour(), BrickPi.PORTS.S1)
+    brickPi._setupSensors()
+
+    expect(brickPi._serialPort.write.callCount).to.equal(2)
+
+    expect(brickPi._serialPort.write.getCall(0).args[0][3]).to.equal(PROTOCOL.CONFIGURE_SENSORS)
+    expect(brickPi._serialPort.write.getCall(1).args[0][3]).to.equal(PROTOCOL.CONFIGURE_SENSORS)
+
+    done()
   })
 })

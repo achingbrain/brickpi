@@ -35,10 +35,10 @@ Valid sensor types are Colour, Distance, Light and Touch.
 
 ```javascript
 // add sensors
-brickPi.addSensor(new BrickPi.Sensors.Colour(), 0)
-brickPi.addSensor(new BrickPi.Sensors.Distance(), 1)
-brickPi.addSensor(new BrickPi.Sensors.Light(), 2)
-brickPi.addSensor(new BrickPi.Sensors.Touch(), 3)
+brickPi.addSensor(new BrickPi.Sensors.Colour(), BrickPi.PORTS.S1)
+brickPi.addSensor(new BrickPi.Sensors.Distance(), BrickPi.PORTS.S2)
+brickPi.addSensor(new BrickPi.Sensors.Light(), BrickPi.PORTS.S3)
+brickPi.addSensor(new BrickPi.Sensors.Touch(), BrickPi.PORTS.S4)
 
 // later
 brickPi.sensor(0).value // what colour
@@ -50,11 +50,11 @@ brickPi.sensor(3).value // touching something
 ### Motors
 
 ```javascript
-brickPi.addMotor(new BrickPi.Motor(), 0)
+brickPi.addMotor(new BrickPi.Motor(), BrickPi.MOTOR_PORTS.MA)
 
 // later
-brickPi.motor(0).speed(255) // full speed ahead
-brickPi.motor(0).speed(0) // stop
-brickPi.motor(0).speed(-255) // reverse
-brickPi.motor(0).value // actual speed
+brickPi.motor(BrickPi.PORTS.MA).speed(255) // full speed ahead
+brickPi.motor(BrickPi.PORTS.MA).speed(0) // stop
+brickPi.motor(BrickPi.PORTS.MA).speed(-255) // reverse
+brickPi.motor(BrickPi.PORTS.MA).value // actual speed
 ```
