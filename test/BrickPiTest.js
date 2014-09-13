@@ -17,17 +17,17 @@ describe('BrickPi', function() {
       this.off = sinon.stub()
     }
     LED['@noCallThru'] = true
-
+    
     BrickPi = proxyquire('../lib/BrickPi', {
       'serialport': {
         SerialPort: SerialPort
       },
       './LED': LED
     })
-
+    
     done()
   })
-/*
+
   it('should have two LEDs', function() {
     var brickPi = new BrickPi()
 
@@ -98,6 +98,29 @@ describe('BrickPi', function() {
     brickPi._readFromBrickPi([checksum, data.length])
     brickPi._readFromBrickPi(data)
   })
+  
+  it('should read bytes from the serial port in really small batches', function(done) {
+    var data = [0x01, 0x02, 0x03]
+
+    var brickPi = new BrickPi()
+    brickPi.on('response', function(buffer) {
+      expect(buffer[0]).to.equal(data[0])
+      expect(buffer[1]).to.equal(data[1])
+      expect(buffer[2]).to.equal(data[2])
+
+      done()
+    })
+
+    var checksum = data.length + data.reduce(function(a, b) {
+      return a + b;
+    });
+
+    brickPi._readFromBrickPi([checksum])
+    brickPi._readFromBrickPi([data.length])
+    brickPi._readFromBrickPi([data[0]])
+    brickPi._readFromBrickPi([data[1]])
+    brickPi._readFromBrickPi([data[2]])
+  })
 
   it('should object if read checksum is wrong', function(done) {
     var data = [0x01, 0x02, 0x03]
@@ -113,7 +136,7 @@ describe('BrickPi', function() {
 
     brickPi._readFromBrickPi([checksum, data.length].concat(data))
   })
-*/
+
   it('should set up sensors', function(done) {
     var brickPi = new BrickPi()
     brickPi._serialPort = {

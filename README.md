@@ -50,7 +50,7 @@ brickPi.sensor(3).value // touching something
 ### Motors
 
 ```javascript
-brickPi.addMotor(new BrickPi.Motor(), BrickPi.MOTOR_PORTS.MA)
+brickPi.addMotor(new BrickPi.Motor(), BrickPi.PORTS.MA)
 
 // later
 brickPi.motor(BrickPi.PORTS.MA).speed(255) // full speed ahead
