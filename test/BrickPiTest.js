@@ -64,7 +64,7 @@ describe('BrickPi', function() {
     var data = [0x01, 0x02, 0x03]
 
     var brickPi = new BrickPi()
-    brickPi.on('response', function(buffer) {
+    brickPi.on('response', function(error, buffer) {
       expect(buffer[0]).to.equal(data[0])
       expect(buffer[1]).to.equal(data[1])
       expect(buffer[2]).to.equal(data[2])
@@ -83,7 +83,7 @@ describe('BrickPi', function() {
     var data = [0x01, 0x02, 0x03]
 
     var brickPi = new BrickPi()
-    brickPi.on('response', function(buffer) {
+    brickPi.on('response', function(error, buffer) {
       expect(buffer[0]).to.equal(data[0])
       expect(buffer[1]).to.equal(data[1])
       expect(buffer[2]).to.equal(data[2])
@@ -103,7 +103,7 @@ describe('BrickPi', function() {
     var data = [0x01, 0x02, 0x03]
 
     var brickPi = new BrickPi()
-    brickPi.on('response', function(buffer) {
+    brickPi.on('response', function(error, buffer) {
       expect(buffer[0]).to.equal(data[0])
       expect(buffer[1]).to.equal(data[1])
       expect(buffer[2]).to.equal(data[2])
@@ -126,7 +126,7 @@ describe('BrickPi', function() {
     var data = [0x01, 0x02, 0x03]
 
     var brickPi = new BrickPi()
-    brickPi.on('error', function(error) {
+    brickPi.on('response', function(error) {
       expect(error instanceof Error).to.be.true
 
       done()
