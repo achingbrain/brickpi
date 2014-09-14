@@ -29,7 +29,22 @@ brickPi.led(0).off() // turn the LED off
 brickPi.led(0).toggle() // if the LED is on, turn it off, otherwise turn it on
 ```
 
+### Motors
+
+```javascript
+brickPi.addMotor(new BrickPi.Motor(), BrickPi.PORTS.MA)
+
+// later
+brickPi.motor(BrickPi.PORTS.MA).speed(255) // full speed ahead
+brickPi.motor(BrickPi.PORTS.MA).speed(0) // stop
+brickPi.motor(BrickPi.PORTS.MA).speed(-255) // reverse
+
+brickPi.emergencyStop() // immediately stop all motors
+```
+
 ### Sensors
+
+Nb. Sensors coming soon.
 
 Valid sensor types are Colour, Distance, Light and Touch. 
 
@@ -45,16 +60,4 @@ brickPi.sensor(0).value // what colour
 brickPi.sensor(1).value // how far
 brickPi.sensor(2).value // how much light
 brickPi.sensor(3).value // touching something
-```
-
-### Motors
-
-```javascript
-brickPi.addMotor(new BrickPi.Motor(), BrickPi.PORTS.MA)
-
-// later
-brickPi.motor(BrickPi.PORTS.MA).speed(255) // full speed ahead
-brickPi.motor(BrickPi.PORTS.MA).speed(0) // stop
-brickPi.motor(BrickPi.PORTS.MA).speed(-255) // reverse
-brickPi.motor(BrickPi.PORTS.MA).value // actual speed
 ```
