@@ -157,4 +157,35 @@ describe('BrickPi', function() {
 
     done()
   })
+  
+  it('should set timeout', function(done) {
+    var brickPi = new BrickPi()
+    brickPi._serialPort = {
+      write: sinon.stub(),
+      flush: sinon.stub()
+    }
+
+    brickPi._serialPort.flush.callsArg(0)
+    brickPi._serialPort.write.callsArg(1)
+    
+    brickPi.setTimeout(1000, function() {
+        expect(brickPi._serialPort.write.callCount).to.equal(2)
+        
+        expect(brickPi._serialPort.write.getCall(0).args[0][0]).to.equal(0x01)
+        expect(brickPi._serialPort.write.getCall(0).args[0][1]).to.equal(0x06)
+        expect(brickPi._serialPort.write.getCall(0).args[0][2]).to.equal(PROTOCOL.CONFIGURE_SENSORS)
+        expect(brickPi._serialPort.write.getCall(0).args[0][3]).to.equal(0x02)
+        expect(brickPi._serialPort.write.getCall(0).args[0][4]).to.equal(0x00)
+        expect(brickPi._serialPort.write.getCall(0).args[0][5]).to.equal(0x00)
+        
+        expect(brickPi._serialPort.write.getCall(0).args[0][0]).to.equal(0x02)
+        expect(brickPi._serialPort.write.getCall(0).args[0][1]).to.equal(0x06)
+        expect(brickPi._serialPort.write.getCall(0).args[0][2]).to.equal(PROTOCOL.CONFIGURE_SENSORS)
+        expect(brickPi._serialPort.write.getCall(0).args[0][3]).to.equal(0x02)
+        expect(brickPi._serialPort.write.getCall(0).args[0][4]).to.equal(0x00)
+        expect(brickPi._serialPort.write.getCall(0).args[0][5]).to.equal(0x00)
+        
+        done()
+    })
+  })
 })
