@@ -40,21 +40,23 @@ describe('BrickPi', function() {
 
   it('should send bytes to the serial port', function(done) {
     var chipIndex = 0
-    var data = [0x01, 0x02, 0x03]
+    var command = 0x01
+    var data = [0x02, 0x03, 0x04]
 
     var brickPi = new BrickPi()
     brickPi._serialPort.flush.callsArg(0)
     brickPi._serialPort.write.callsArg(1)
 
-    brickPi._sendToBrickPi(chipIndex, data, function() {
+    brickPi._sendToBrickPi(chipIndex, command, data, function() {
       var buffer = brickPi._serialPort.write.getCall(0).args[0]
 
       expect(buffer[0]).to.equal(chipIndex) // chip to send data to
-      expect(buffer[1]).to.equal(9) // checksum
-      expect(buffer[2]).to.equal(3) // length
-      expect(buffer[3]).to.equal(data[0]) // data
-      expect(buffer[4]).to.equal(data[1]) // data
-      expect(buffer[5]).to.equal(data[2]) // data
+      expect(buffer[1]).to.equal(14) // checksum
+      expect(buffer[2]).to.equal(data.length + 1) // length
+      expect(buffer[3]).to.equal(command) // command
+      expect(buffer[4]).to.equal(data[0]) // data
+      expect(buffer[5]).to.equal(data[1]) // data
+      expect(buffer[6]).to.equal(data[2]) // data
 
       done()
     })
@@ -157,7 +159,7 @@ describe('BrickPi', function() {
 
     done()
   })
-  
+
   it('should set timeout', function(done) {
     var brickPi = new BrickPi()
     brickPi._serialPort = {
@@ -167,25 +169,77 @@ describe('BrickPi', function() {
 
     brickPi._serialPort.flush.callsArg(0)
     brickPi._serialPort.write.callsArg(1)
-    
-    brickPi.setTimeout(1000, function() {
-        expect(brickPi._serialPort.write.callCount).to.equal(2)
-        
-        expect(brickPi._serialPort.write.getCall(0).args[0][0]).to.equal(0x01)
-        expect(brickPi._serialPort.write.getCall(0).args[0][1]).to.equal(0x06)
-        expect(brickPi._serialPort.write.getCall(0).args[0][2]).to.equal(PROTOCOL.CONFIGURE_SENSORS)
-        expect(brickPi._serialPort.write.getCall(0).args[0][3]).to.equal(0x02)
-        expect(brickPi._serialPort.write.getCall(0).args[0][4]).to.equal(0x00)
-        expect(brickPi._serialPort.write.getCall(0).args[0][5]).to.equal(0x00)
-        
-        expect(brickPi._serialPort.write.getCall(0).args[0][0]).to.equal(0x02)
-        expect(brickPi._serialPort.write.getCall(0).args[0][1]).to.equal(0x06)
-        expect(brickPi._serialPort.write.getCall(0).args[0][2]).to.equal(PROTOCOL.CONFIGURE_SENSORS)
-        expect(brickPi._serialPort.write.getCall(0).args[0][3]).to.equal(0x02)
-        expect(brickPi._serialPort.write.getCall(0).args[0][4]).to.equal(0x00)
-        expect(brickPi._serialPort.write.getCall(0).args[0][5]).to.equal(0x00)
-        
-        done()
-    })
+
+    brickPi.setCommunicationTimeout(10000)
+
+    expect(brickPi._serialPort.write.callCount).to.equal(1)
+
+    expect(brickPi._serialPort.write.getCall(0).args[0][0]).to.equal(0x01) // chip select
+    expect(brickPi._serialPort.write.getCall(0).args[0][1]).to.equal(0x42) // checksum
+    expect(brickPi._serialPort.write.getCall(0).args[0][2]).to.equal(0x05) // packet length
+    expect(brickPi._serialPort.write.getCall(0).args[0][3]).to.equal(PROTOCOL.SET_COMMUNICATION_TIMEOUT)
+    expect(brickPi._serialPort.write.getCall(0).args[0][4]).to.equal(0x10)
+    expect(brickPi._serialPort.write.getCall(0).args[0][5]).to.equal(0x27)
+    expect(brickPi._serialPort.write.getCall(0).args[0][6]).to.equal(0x00)
+    expect(brickPi._serialPort.write.getCall(0).args[0][7]).to.equal(0x00)
+
+    done()
+  })
+
+  it('should set initial motor speeds to 0', function(done) {
+    var brickPi = new BrickPi()
+    brickPi._serialPort = {
+      write: sinon.stub(),
+      flush: sinon.stub()
+    }
+
+    brickPi._serialPort.flush.callsArg(0)
+    brickPi._serialPort.write.callsArg(1)
+
+    brickPi.addMotor(new BrickPi.Motor(), BrickPi.PORTS.MB)
+    brickPi.addMotor(new BrickPi.Motor(), BrickPi.PORTS.MC)
+
+    brickPi._updateValues()
+
+    expect(brickPi._serialPort.write.callCount).to.equal(1)
+    expect(brickPi._serialPort.write.getCall(0).args[0][0]).to.equal(0x01) // chip select
+    expect(brickPi._serialPort.write.getCall(0).args[0][1]).to.equal(0x08) // checksum
+    expect(brickPi._serialPort.write.getCall(0).args[0][2]).to.equal(0x04) // packet length
+    expect(brickPi._serialPort.write.getCall(0).args[0][3]).to.equal(PROTOCOL.READ_SENSOR_VALUES)
+    expect(brickPi._serialPort.write.getCall(0).args[0][4]).to.equal(0x00)
+    expect(brickPi._serialPort.write.getCall(0).args[0][5]).to.equal(0x00)
+    expect(brickPi._serialPort.write.getCall(0).args[0][6]).to.equal(0x00)
+
+    done()
+  })
+
+  it('should set motor speeds to 200', function(done) {
+    var brickPi = new BrickPi()
+    brickPi._serialPort = {
+      write: sinon.stub(),
+      flush: sinon.stub()
+    }
+
+    brickPi._serialPort.flush.callsArg(0)
+    brickPi._serialPort.write.callsArg(1)
+
+    var left = brickPi.addMotor(new BrickPi.Motor(), BrickPi.PORTS.MB)
+    var right = brickPi.addMotor(new BrickPi.Motor(), BrickPi.PORTS.MC)
+
+    left.speed(200)
+    right.speed(200)
+
+    brickPi._updateValues()
+
+    expect(brickPi._serialPort.write.callCount).to.equal(1)
+    expect(brickPi._serialPort.write.getCall(0).args[0][0]).to.equal(0x01)
+    expect(brickPi._serialPort.write.getCall(0).args[0][1]).to.equal(0x4A)
+    expect(brickPi._serialPort.write.getCall(0).args[0][2]).to.equal(0x04)
+    expect(brickPi._serialPort.write.getCall(0).args[0][3]).to.equal(PROTOCOL.READ_SENSOR_VALUES)
+    expect(brickPi._serialPort.write.getCall(0).args[0][4]).to.equal(0x00)
+    expect(brickPi._serialPort.write.getCall(0).args[0][5]).to.equal(0x10)
+    expect(brickPi._serialPort.write.getCall(0).args[0][6]).to.equal(0x32)
+
+    done()
   })
 })
