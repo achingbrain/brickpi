@@ -139,27 +139,6 @@ describe('BrickPi', function() {
     brickPi._readFromBrickPi([checksum, data.length].concat(data))
   })
 
-  it('should set up sensors', function(done) {
-    var brickPi = new BrickPi()
-    brickPi._serialPort = {
-      write: sinon.stub(),
-      flush: sinon.stub()
-    }
-
-    brickPi._serialPort.flush.callsArg(0)
-    brickPi._serialPort.write.callsArg(1)
-
-    brickPi.addSensor(new BrickPi.Sensors.Colour(), BrickPi.PORTS.S1)
-    brickPi._setupSensors()
-
-    expect(brickPi._serialPort.write.callCount).to.equal(2)
-
-    expect(brickPi._serialPort.write.getCall(0).args[0][3]).to.equal(PROTOCOL.CONFIGURE_SENSORS)
-    expect(brickPi._serialPort.write.getCall(1).args[0][3]).to.equal(PROTOCOL.CONFIGURE_SENSORS)
-
-    done()
-  })
-
   it('should set timeout', function(done) {
     var brickPi = new BrickPi()
     brickPi._serialPort = {
@@ -239,6 +218,36 @@ describe('BrickPi', function() {
     expect(brickPi._serialPort.write.getCall(0).args[0][4]).to.equal(0x00)
     expect(brickPi._serialPort.write.getCall(0).args[0][5]).to.equal(0x10)
     expect(brickPi._serialPort.write.getCall(0).args[0][6]).to.equal(0x32)
+
+    done()
+  })
+
+  it('should configure an ultrasonic sensor', function(done) {
+    var brickPi = new BrickPi()
+    brickPi._serialPort = {
+      write: sinon.stub(),
+      flush: sinon.stub()
+    }
+
+    brickPi._serialPort.flush.callsArg(0)
+    brickPi._serialPort.write.callsArg(1)
+
+    brickPi.addSensor(new BrickPi.Sensors.NXT.Distance(), BrickPi.PORTS.S1)
+
+    brickPi._setupSensors()
+
+    expect(brickPi._serialPort.write.callCount).to.equal(1)
+    expect(brickPi._serialPort.write.getCall(0).args[0][0]).to.equal(0x01)
+    expect(brickPi._serialPort.write.getCall(0).args[0][1]).to.equal(0x87)
+    expect(brickPi._serialPort.write.getCall(0).args[0][2]).to.equal(0x08)
+    expect(brickPi._serialPort.write.getCall(0).args[0][3]).to.equal(PROTOCOL.CONFIGURE_SENSORS)
+    expect(brickPi._serialPort.write.getCall(0).args[0][4]).to.equal(0x29)
+    expect(brickPi._serialPort.write.getCall(0).args[0][5]).to.equal(0x00)
+    expect(brickPi._serialPort.write.getCall(0).args[0][6]).to.equal(0x0A)
+    expect(brickPi._serialPort.write.getCall(0).args[0][7]).to.equal(0x08)
+    expect(brickPi._serialPort.write.getCall(0).args[0][8]).to.equal(0x1C)
+    expect(brickPi._serialPort.write.getCall(0).args[0][9]).to.equal(0x21)
+    expect(brickPi._serialPort.write.getCall(0).args[0][10]).to.equal(0x04)
 
     done()
   })
