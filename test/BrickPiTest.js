@@ -27,7 +27,7 @@ describe('BrickPi', function() {
     
     done()
   })
-/*
+
   it('should have two LEDs', function() {
     var brickPi = new BrickPi()
 
@@ -251,7 +251,6 @@ describe('BrickPi', function() {
 
     done()
   })
-  */
 
   it('should read 255 from an ultrasonic sensor', function(done) {
     var brickPi = new BrickPi()
@@ -262,6 +261,19 @@ describe('BrickPi', function() {
     brickPi._onData(null, [0x03, 0x10, 0xb0, 0x75, 0xff, 0xff, 0x3f])
 
     expect(sensor.value).to.equal(255)
+
+    done()
+  })
+
+  it('should read 21 from an ultrasonic sensor', function(done) {
+    var brickPi = new BrickPi()
+
+    var sensor = brickPi.addSensor(new BrickPi.Sensors.NXT.Distance(), BrickPi.PORTS.S1)
+
+    brickPi._updateValues()
+    brickPi._onData(null, [0x03, 0x00, 0xAC, 0xF8, 0x1F])
+
+    expect(sensor.value).to.equal(21)
 
     done()
   })
