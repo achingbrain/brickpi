@@ -32,32 +32,47 @@ brickPi.led(0).toggle() // if the LED is on, turn it off, otherwise turn it on
 ### Motors
 
 ```javascript
-brickPi.addMotor(new BrickPi.Motor(), BrickPi.PORTS.MA)
+var motor = brickPi.addMotor(new BrickPi.Motor(), BrickPi.PORTS.MA)
 
 // later
-brickPi.motor(BrickPi.PORTS.MA).speed(255) // full speed ahead
-brickPi.motor(BrickPi.PORTS.MA).speed(0) // stop
-brickPi.motor(BrickPi.PORTS.MA).speed(-255) // reverse
+motor.speed(255) // full speed ahead
+motor.speed(0) // stop
+motor.speed(-255) // reverse
 
+brickPi.once('emergencyStop', function() {
+    console.info('stopped!')
+})
 brickPi.emergencyStop() // immediately stop all motors
 ```
 
 ### Sensors
 
-Nb. Sensors coming soon.
-
-Valid sensor types are Colour, Distance, Light and Touch. 
+Valid sensor types are Distance, Light, Sound and Touch. 
 
 ```javascript
 // add sensors
-brickPi.addSensor(new BrickPi.Sensors.Colour(), BrickPi.PORTS.S1)
-brickPi.addSensor(new BrickPi.Sensors.Distance(), BrickPi.PORTS.S2)
-brickPi.addSensor(new BrickPi.Sensors.Light(), BrickPi.PORTS.S3)
-brickPi.addSensor(new BrickPi.Sensors.Touch(), BrickPi.PORTS.S4)
+var distance = brickPi.addSensor(new BrickPi.Sensors.NXT.Distance(), BrickPi.PORTS.S1)
+var light = brickPi.addSensor(new BrickPi.Sensors.NXT.Light(), BrickPi.PORTS.S2)
+var sound = brickPi.addSensor(new BrickPi.Sensors.NXT.Sound(), BrickPi.PORTS.S3)
+var touch = brickPi.addSensor(new BrickPi.Sensors.NXT.Touch(), BrickPi.PORTS.S4)
 
 // later
-brickPi.sensor(0).value // what colour
-brickPi.sensor(1).value // how far
-brickPi.sensor(2).value // how much light
-brickPi.sensor(3).value // touching something
+distance.value(function(error, value) {
+    // value is 0-255 in cm
+}) 
+light.value(function(error, value) {
+  // value is 0-100 in %
+})
+sound.value(function(error, value) {
+  // value is 0-100 in %
+})
+touch.value(function(error, value) {
+  // value is true or false
+})
 ```
+
+### Missing stuff
+
+#### What about EV3, NXT2, etc?
+
+I only have the NXT kit, sorry.  Hardware donations and/or pull requests gratefully accepted.

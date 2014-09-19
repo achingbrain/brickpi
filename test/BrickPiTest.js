@@ -234,7 +234,7 @@ describe('BrickPi', function() {
 
     brickPi.addSensor(new BrickPi.Sensors.NXT.Distance(), BrickPi.PORTS.S1)
 
-    brickPi._setupSensors()
+    brickPi._setUpSensors()
 
     expect(brickPi._serialPort.write.callCount).to.equal(1)
     expect(brickPi._serialPort.write.getCall(0).args[0][0]).to.equal(0x01)
@@ -274,6 +274,69 @@ describe('BrickPi', function() {
     brickPi._onData(null, [0x03, 0x00, 0xAC, 0xF8, 0x1F])
 
     expect(sensor.value).to.equal(21)
+
+    done()
+  })
+
+  it('should configure all of the sensors', function(done) {
+    var brickPi = new BrickPi()
+    brickPi._serialPort = {
+      write: sinon.stub(),
+      flush: sinon.stub()
+    }
+
+    brickPi._serialPort.flush.callsArg(0)
+    brickPi._serialPort.write.callsArg(1)
+
+    brickPi.addSensor(new BrickPi.Sensors.NXT.Light(), BrickPi.PORTS.S1)
+    brickPi.addSensor(new BrickPi.Sensors.NXT.Distance(), BrickPi.PORTS.S2)
+    brickPi.addSensor(new BrickPi.Sensors.NXT.Touch(), BrickPi.PORTS.S3)
+    brickPi.addSensor(new BrickPi.Sensors.NXT.Sound(), BrickPi.PORTS.S4)
+
+    brickPi._setUpSensors()
+
+    expect(brickPi._serialPort.write.callCount).to.equal(1)
+    expect(brickPi._serialPort.write.getCall(0).args[0][0]).to.equal(0x01)
+    expect(brickPi._serialPort.write.getCall(0).args[0][1]).to.equal(0x87)
+    expect(brickPi._serialPort.write.getCall(0).args[0][2]).to.equal(0x08)
+    expect(brickPi._serialPort.write.getCall(0).args[0][3]).to.equal(PROTOCOL.CONFIGURE_SENSORS)
+    expect(brickPi._serialPort.write.getCall(0).args[0][4]).to.equal(0x00)
+    expect(brickPi._serialPort.write.getCall(0).args[0][5]).to.equal(0x29)
+    expect(brickPi._serialPort.write.getCall(0).args[0][6]).to.equal(0x0A)
+    expect(brickPi._serialPort.write.getCall(0).args[0][7]).to.equal(0x08)
+    expect(brickPi._serialPort.write.getCall(0).args[0][8]).to.equal(0x1C)
+    expect(brickPi._serialPort.write.getCall(0).args[0][9]).to.equal(0x21)
+    expect(brickPi._serialPort.write.getCall(0).args[0][10]).to.equal(0x04)
+
+    brickPi.emit('configuredSensors', null, [0x02])
+
+    expect(brickPi._serialPort.write.callCount).to.equal(2)
+    expect(brickPi._serialPort.write.getCall(1).args[0][0]).to.equal(0x02)
+    expect(brickPi._serialPort.write.getCall(1).args[0][1]).to.equal(0x27)
+    expect(brickPi._serialPort.write.getCall(1).args[0][2]).to.equal(0x03)
+    expect(brickPi._serialPort.write.getCall(1).args[0][3]).to.equal(PROTOCOL.CONFIGURE_SENSORS)
+    expect(brickPi._serialPort.write.getCall(1).args[0][4]).to.equal(0x20)
+    expect(brickPi._serialPort.write.getCall(1).args[0][5]).to.equal(0x00)
+
+    done()
+  })
+
+  it('should read all of the values', function(done) {
+    var brickPi = new BrickPi()
+
+    var light = brickPi.addSensor(new BrickPi.Sensors.NXT.Light(), BrickPi.PORTS.S1)
+    var distance = brickPi.addSensor(new BrickPi.Sensors.NXT.Distance(), BrickPi.PORTS.S2)
+    var touch = brickPi.addSensor(new BrickPi.Sensors.NXT.Touch(), BrickPi.PORTS.S3)
+    var sound = brickPi.addSensor(new BrickPi.Sensors.NXT.Sound(), BrickPi.PORTS.S4)
+
+    brickPi._updateValues()
+    brickPi._onData(null, [0x03, 0x40, 0x08, 0xE1, 0x7F])
+    brickPi._onData(null, [0x03, 0x02, 0xFC, 0x70])
+
+    expect(light.value).to.equal(47)
+    expect(distance.value).to.equal(255)
+    expect(touch.value).to.be.true
+    expect(sound.value).to.equal(9)
 
     done()
   })
