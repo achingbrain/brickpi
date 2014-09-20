@@ -71,8 +71,21 @@ touch.value(function(error, value) {
 })
 ```
 
-### Missing stuff
+### Notes
 
 #### What about EV3, NXT2, etc?
 
 I only have the NXT kit, sorry.  Hardware donations and/or pull requests gratefully accepted.
+
+#### Why is the motor control so imprecise?
+
+NXT motors are continuous servos equipped with encoders. This means that you tell the motor how fast to spin then read
+the encoders to work out what position the motor is in. Once it reaches the desired location, you stop the motor.
+Because the motor is a mechanical device stopping it involves it slowing down before stopping completely by which point
+it will most likely be slightly past the desired location.  Normal servos do not have this problem because the PWM
+duty cycle set corresponds to a given orientation of the servo horn.
+
+#### What about sensor port 5?
+
+The second generation BrickPi has five sensor ports.  This driver has been ported from the Python version which 
+doesn't support the fifth sensor port.  If a driver that does support it emerges I can add support.

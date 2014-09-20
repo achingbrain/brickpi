@@ -340,4 +340,14 @@ describe('BrickPi', function() {
 
     done()
   })
+
+  it('should move a motor to 180 degrees', function(done) {
+    var brickPi = new BrickPi()
+
+    var motor = brickPi.addMotor(new BrickPi.Motor(), BrickPi.PORTS.MB)
+
+    motor.to(180, 255)
+
+    done()
+  })
 })
