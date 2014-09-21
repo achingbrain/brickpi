@@ -12,6 +12,23 @@ var brickPi = new BrickPi('/dev/ttyAMA0', function() {
 })
 ```
 
+### Constructor options
+
+All arguments are optional and order is not important.
+
+Pass a string (path to a serial device), an options object and a callback function to invoke when the BrickPi is ready 
+to use.
+
+Default options are as follows:
+
+```javascript
+var brickPi = new BrickPi({
+    baudrate: 500000, // the speed of the connection to the BrickPi
+    timeout: 10000, // stop the motors if no communication is received in this time period (ms)
+    debug: false // whether to print verbose debug output
+})
+```
+
 ### LED
 
 The BrickPi has two LEDs that can be accessed by passing an index to the `led` function:
@@ -76,16 +93,6 @@ sound.value(function(error, value) {
 })
 touch.value(function(error, value) {
   // value is true or false
-})
-```
-
-### Options
-
-```javascript
-var brickPi = new BrickPi({
-    baudrate: 500000, // the speed of the connection to the BrickPi
-    timeout: 10000, // stop the motors if no communication is received in this time period (ms)
-    debug: false // whether to print verbose debug output
 })
 ```
 
