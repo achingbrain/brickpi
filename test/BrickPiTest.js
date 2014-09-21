@@ -34,7 +34,6 @@ describe('BrickPi', function() {
     })
   })
 
-/*
   it('should have two LEDs', function() {
     var brickPi = new BrickPi()
 
@@ -347,7 +346,7 @@ describe('BrickPi', function() {
 
     done()
   })
-*/
+
   it('should move a motor to 180 degrees', function(done) {
     var brickPi = new BrickPi()
     brickPi._serialPort = {
@@ -416,7 +415,7 @@ describe('BrickPi', function() {
     expect(motor._requestedSpeed).to.equal(0)
 
     expect(brickPi._serialPort.write.callCount).to.equal(7)
-    //expect(bufferEquals(brickPi._serialPort.write.getCall(6).args[0], [0x01, 0x17, 0x04, 0x03, 0x00, 0xD0, 0x3F])).to.be.true
+    expect(bufferEquals(brickPi._serialPort.write.getCall(6).args[0], [0x01, 0x18, 0x04, 0x03, 0x00, 0x10, 0x00])).to.be.true
     brickPi._onData(null, [0x03, 0xE0, 0x61, 0x9C, 0xFB, 0xFF, 0x1F])
 
     expect(brickPi._serialPort.write.callCount).to.equal(8)
