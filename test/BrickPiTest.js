@@ -3,11 +3,19 @@ var expect = require('chai').expect,
   proxyquire = require('proxyquire'),
   PROTOCOL = require('../lib/Protocol')
 
+var bufferEquals = function(buff, arr) {
+  for(var i = 0; i < arr.length; i++) {
+    expect(buff[i]).to.equal(arr[i])
+  }
+
+  return true
+}
+
 describe('BrickPi', function() {
 
   var BrickPi, SerialPort, LED
 
-  before(function(done) {
+  before(function() {
     SerialPort = function() {
       this.on = sinon.stub(),
       this.write = sinon.stub(),
@@ -24,10 +32,9 @@ describe('BrickPi', function() {
       },
       './LED': LED
     })
-    
-    done()
   })
 
+/*
   it('should have two LEDs', function() {
     var brickPi = new BrickPi()
 
@@ -340,13 +347,83 @@ describe('BrickPi', function() {
 
     done()
   })
-
+*/
   it('should move a motor to 180 degrees', function(done) {
     var brickPi = new BrickPi()
+    brickPi._serialPort = {
+      write: sinon.stub(),
+      flush: sinon.stub()
+    }
+    brickPi._serialPort.flush.callsArg(0)
+    brickPi._serialPort.write.callsArg(1)
 
     var motor = brickPi.addMotor(new BrickPi.Motor(), BrickPi.PORTS.MB)
 
-    motor.to(180, 255)
+    motor.to(180)
+
+    // should have requested full speed
+    expect(motor._requestedSpeed).to.equal(255)
+
+    // should not know encoder value
+    expect(motor._currentEncoderValue).to.equal(null)
+
+    // set the speed and read the encoder value
+    brickPi._updateValues()
+
+    // should have updated chip 1
+    expect(brickPi._serialPort.write.callCount).to.equal(1)
+    expect(bufferEquals(brickPi._serialPort.write.getCall(0).args[0], [0x01, 0x17, 0x04, 0x03, 0x00, 0xD0, 0x3F])).to.be.true
+    brickPi._onData(null, [0x03, 0xE0, 0x09, 0x89, 0xFF, 0xFF, 0x1F])
+
+    // should have  updated chip 2
+    expect(brickPi._serialPort.write.callCount).to.equal(2)
+    expect(bufferEquals(brickPi._serialPort.write.getCall(1).args[0], [0x02, 0x09, 0x04, 0x03, 0x00, 0x00, 0x00])).to.be.true
+    brickPi._onData(null, [0x03, 0x03, 0xF8, 0xFF, 0xFF, 0x01])
+
+    // encoder value should have updated
+    expect(motor._currentEncoderValue).to.equal(25154)
+
+    // encoder target is set up
+    brickPi._updateValues()
+
+    expect(brickPi._serialPort.write.callCount).to.equal(3)
+    expect(bufferEquals(brickPi._serialPort.write.getCall(2).args[0], [0x01, 0x17, 0x04, 0x03, 0x00, 0xD0, 0x3F])).to.be.true
+    brickPi._onData(null, [0x03, 0xE0, 0x81, 0x8E, 0xFB, 0xF7, 0x1F])
+
+    expect(brickPi._serialPort.write.callCount).to.equal(4)
+    expect(bufferEquals(brickPi._serialPort.write.getCall(3).args[0], [0x02, 0x09, 0x04, 0x03, 0x00, 0x00, 0x00])).to.be.true
+    brickPi._onData(null, [0x03, 0x03, 0xF8, 0xFF, 0xFF, 0x01])
+
+    // encoder value should have updated
+    expect(motor._currentEncoderValue).to.equal(25504)
+
+    brickPi._updateValues()
+
+    expect(brickPi._serialPort.write.callCount).to.equal(5)
+    expect(bufferEquals(brickPi._serialPort.write.getCall(4).args[0], [0x01, 0x17, 0x04, 0x03, 0x00, 0xD0, 0x3F])).to.be.true
+    brickPi._onData(null, [0x03, 0xE0, 0xD9, 0x95, 0xFD, 0xF7, 0x1F])
+
+    expect(brickPi._serialPort.write.callCount).to.equal(6)
+    expect(bufferEquals(brickPi._serialPort.write.getCall(5).args[0], [0x02, 0x09, 0x04, 0x03, 0x00, 0x00, 0x00])).to.be.true
+    brickPi._onData(null, [0x03, 0x03, 0xF8, 0xFF, 0xFF, 0x01])
+
+    // encoder value should have updated
+    expect(motor._currentEncoderValue).to.equal(25974)
+
+    // should now tell the motor to stop
+    brickPi._updateValues()
+
+    expect(motor._requestedSpeed).to.equal(0)
+
+    expect(brickPi._serialPort.write.callCount).to.equal(7)
+    //expect(bufferEquals(brickPi._serialPort.write.getCall(6).args[0], [0x01, 0x17, 0x04, 0x03, 0x00, 0xD0, 0x3F])).to.be.true
+    brickPi._onData(null, [0x03, 0xE0, 0x61, 0x9C, 0xFB, 0xFF, 0x1F])
+
+    expect(brickPi._serialPort.write.callCount).to.equal(8)
+    expect(bufferEquals(brickPi._serialPort.write.getCall(7).args[0], [0x02, 0x09, 0x04, 0x03, 0x00, 0x00, 0x00])).to.be.true
+    brickPi._onData(null, [0x03, 0x03, 0xF8, 0xFF, 0xFF, 0x01])
+
+    expect(motor._currentEncoderValue).to.equal(26392)
 
     done()
   })
