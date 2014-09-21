@@ -308,7 +308,7 @@ describe('BrickPi', function() {
     expect(brickPi._serialPort.write.getCall(0).args[0][9]).to.equal(0x21)
     expect(brickPi._serialPort.write.getCall(0).args[0][10]).to.equal(0x04)
 
-    brickPi.emit('configuredSensors', null, [0x02])
+    brickPi.emit('_setUpSensors', null, [0x02])
 
     expect(brickPi._serialPort.write.callCount).to.equal(2)
     expect(brickPi._serialPort.write.getCall(1).args[0][0]).to.equal(0x02)
