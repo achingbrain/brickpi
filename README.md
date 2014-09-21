@@ -35,9 +35,17 @@ brickPi.led(0).toggle() // if the LED is on, turn it off, otherwise turn it on
 var motor = brickPi.addMotor(new BrickPi.Motor(), BrickPi.PORTS.MA)
 
 // later
-motor.speed(255) // full speed ahead
+motor.speed(255) // continuous motion - full speed ahead
 motor.speed(0) // stop
 motor.speed(-255) // reverse
+
+// rotation
+motor.rotate(180) // rotate 180 degrees
+motor.rotate(-180) // rotate 180 degrees in the opposite direction
+
+// optionally specify a speed
+motor.rotate(180, 255) // rotate 180 degrees at full speed
+motor.rotate(180, 128) // rotate 180 degrees at half speed
 
 brickPi.once('emergencyStop', function() {
     console.info('stopped!')
@@ -68,6 +76,16 @@ sound.value(function(error, value) {
 })
 touch.value(function(error, value) {
   // value is true or false
+})
+```
+
+### Options
+
+```javascript
+var brickPi = new BrickPi({
+    baudrate: 500000, // the speed of the connection to the BrickPi
+    timeout: 10000, // stop the motors if no communication is received in this time period (ms)
+    debug: false // whether to print verbose debug output
 })
 ```
 

@@ -358,7 +358,7 @@ describe('BrickPi', function() {
 
     var motor = brickPi.addMotor(new BrickPi.Motor(), BrickPi.PORTS.MB)
 
-    motor.to(180)
+    motor.rotate(180)
 
     // should have requested full speed
     expect(motor._requestedSpeed).to.equal(255)

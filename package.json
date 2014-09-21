@@ -14,7 +14,9 @@
   "dependencies": {
     "serialport": "^1.0",
     "pi-pins": "^1.0",
-    "async": "^0.9"
+    "async": "^0.9",
+    "winston": "^0.8",
+    "defaults": "^1.0"
   },
   "devDependencies": {
     "mocha": "^1.18",
