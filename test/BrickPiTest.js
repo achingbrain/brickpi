@@ -25,7 +25,7 @@ describe('BrickPi', function() {
       this.off = sinon.stub()
     }
     LED['@noCallThru'] = true
-    
+
     BrickPi = proxyquire('../lib/BrickPi', {
       'serialport': {
         SerialPort: SerialPort
@@ -106,7 +106,7 @@ describe('BrickPi', function() {
     brickPi._readFromBrickPi([checksum, data.length])
     brickPi._readFromBrickPi(data)
   })
-  
+
   it('should read bytes from the serial port in really small batches', function(done) {
     var data = [0x01, 0x02, 0x03]
 
@@ -169,6 +169,62 @@ describe('BrickPi', function() {
     expect(brickPi._serialPort.write.getCall(0).args[0][7]).to.equal(0x00)
 
     done()
+  })
+
+  it('should set timeout and notify via timeout', function(done) {
+    var brickPi = new BrickPi()
+    brickPi._serialPort = {
+      write: sinon.stub(),
+      flush: sinon.stub()
+    }
+
+    brickPi._serialPort.flush.callsArg(0)
+    brickPi._serialPort.write.callsArg(1)
+
+    brickPi.setCommunicationTimeout(10000, done)
+
+    // twice because both arduinos need to respond
+    brickPi._onData(null, [PROTOCOL.SET_COMMUNICATION_TIMEOUT])
+    brickPi._onData(null, [PROTOCOL.SET_COMMUNICATION_TIMEOUT])
+  })
+
+  it('should initiate emergency stop', function(done) {
+    var brickPi = new BrickPi()
+    brickPi._serialPort = {
+      write: sinon.stub(),
+      flush: sinon.stub()
+    }
+
+    brickPi._serialPort.flush.callsArg(0)
+    brickPi._serialPort.write.callsArg(1)
+
+    brickPi.emergencyStop()
+
+    expect(brickPi._serialPort.write.callCount).to.equal(1)
+
+    expect(brickPi._serialPort.write.getCall(0).args[0][0]).to.equal(0x01) // chip select
+    expect(brickPi._serialPort.write.getCall(0).args[0][1]).to.equal(0x06) // checksum
+    expect(brickPi._serialPort.write.getCall(0).args[0][2]).to.equal(0x01) // packet length
+    expect(brickPi._serialPort.write.getCall(0).args[0][3]).to.equal(PROTOCOL.EMERGENCY_STOP)
+
+    done()
+  })
+
+  it('should initiate emergency stop and notify via timeout', function(done) {
+    var brickPi = new BrickPi()
+    brickPi._serialPort = {
+      write: sinon.stub(),
+      flush: sinon.stub()
+    }
+
+    brickPi._serialPort.flush.callsArg(0)
+    brickPi._serialPort.write.callsArg(1)
+
+    brickPi.emergencyStop(done)
+
+    // twice because both arduinos need to respond
+    brickPi._onData(null, [PROTOCOL.EMERGENCY_STOP])
+    brickPi._onData(null, [PROTOCOL.EMERGENCY_STOP])
   })
 
   it('should set initial motor speeds to 0', function(done) {
@@ -284,6 +340,54 @@ describe('BrickPi', function() {
     done()
   })
 
+  it('should only allow I2C sensors on port 5', function(done) {
+    var brickPi = new BrickPi()
+
+    brickPi.addSensor(new BrickPi.Sensors.NXT.Distance(), BrickPi.PORTS.S5)
+
+    done()
+  })
+
+  it('should not allow non-I2C sensors on port 5', function(done) {
+    var brickPi = new BrickPi()
+
+    try {
+      brickPi.addSensor(new BrickPi.Sensors.NXT.Light(), BrickPi.PORTS.S5)
+    } catch(e) {
+      done()
+    }
+  })
+
+  it('should make a fuss for sensor ports below range', function(done) {
+    var brickPi = new BrickPi()
+
+    try {
+      brickPi.addSensor(new BrickPi.Sensors.NXT.Light(), -1)
+    } catch(e) {
+      done()
+    }
+  })
+
+  it('should make a fuss for sensor ports over range', function(done) {
+    var brickPi = new BrickPi()
+
+    try {
+      brickPi.addSensor(new BrickPi.Sensors.NXT.Light(), 5)
+    } catch(e) {
+      done()
+    }
+  })
+
+  it('should make a fuss for non-numeric sensor ports', function(done) {
+    var brickPi = new BrickPi()
+
+    try {
+      brickPi.addSensor(new BrickPi.Sensors.NXT.Light(), 'foo')
+    } catch(e) {
+      done()
+    }
+  })
+
   it('should configure all of the sensors', function(done) {
     var brickPi = new BrickPi()
     brickPi._serialPort = {
@@ -345,6 +449,36 @@ describe('BrickPi', function() {
     expect(sound.value).to.equal(9)
 
     done()
+  })
+
+  it('should make a fuss for motor ports below range', function(done) {
+    var brickPi = new BrickPi()
+
+    try {
+      brickPi.addMotor(new BrickPi.Motor(), -1)
+    } catch(e) {
+      done()
+    }
+  })
+
+  it('should make a fuss for motor ports over range', function(done) {
+    var brickPi = new BrickPi()
+
+    try {
+      brickPi.addMotor(new BrickPi.Motor(), 4)
+    } catch(e) {
+      done()
+    }
+  })
+
+  it('should make a fuss for non-numeric motor ports', function(done) {
+    var brickPi = new BrickPi()
+
+    try {
+      brickPi.addMotor(new BrickPi.Motor(), 'foo')
+    } catch(e) {
+      done()
+    }
   })
 
   it('should move a motor to 180 degrees', function(done) {
