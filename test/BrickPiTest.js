@@ -138,4 +138,58 @@ describe('BrickPi', function() {
     expect(brickPi._arduinos[0].emergencyStop.callCount).to.equal(1)
     expect(brickPi._arduinos[1].emergencyStop.callCount).to.equal(1)
   })
+
+  it('should tell both arduinos to update their values', function() {
+    var brickPi = new BrickPi()
+    brickPi._arduinos = [{
+        updateValues: sinon.stub()
+      }, {
+        updateValues: sinon.stub()
+      }
+    ]
+
+    brickPi._arduinos[0].updateValues.callsArg(0)
+    brickPi._arduinos[1].updateValues.callsArg(0)
+
+    brickPi.updateValues()
+
+    // twice because both arduinos need to respond
+    expect(brickPi._arduinos[0].updateValues.callCount).to.equal(1)
+    expect(brickPi._arduinos[1].updateValues.callCount).to.equal(1)
+  })
+
+  it('should tell both arduinos to update their values and notify via callback', function(done) {
+    var brickPi = new BrickPi()
+    brickPi._arduinos = [{
+        updateValues: sinon.stub()
+      }, {
+        updateValues: sinon.stub()
+      }
+    ]
+
+    brickPi._arduinos[0].updateValues.callsArg(0)
+    brickPi._arduinos[1].updateValues.callsArg(0)
+
+    brickPi.updateValues(done)
+  })
+
+  it('should return the right sensor', function() {
+    var brickPi = new BrickPi()
+
+    var sensor = new BrickPi.Sensors.NXT.Light()
+
+    brickPi.addSensor(sensor, BrickPi.PORTS.S1)
+
+    expect(brickPi.sensor(BrickPi.PORTS.S1)).to.equal(sensor)
+  })
+
+  it('should return the right motor', function() {
+    var brickPi = new BrickPi()
+
+    var motor = new BrickPi.Motor()
+
+    brickPi.addMotor(motor, BrickPi.PORTS.MA)
+
+    expect(brickPi.motor(BrickPi.PORTS.MA)).to.equal(motor)
+  })
 })
