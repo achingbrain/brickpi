@@ -7,7 +7,7 @@ Node.js bindings for the [BrickPi](http://www.dexterindustries.com/BrickPi).
 ```javascript
 var BrickPi = require('brickpi')
 
-var brickPi = new BrickPi('/dev/ttyAMA0', function() {
+var brickPi = new BrickPi.Board('/dev/ttyAMA0', function() {
   brickPi.led(0).on()
 })
 ```
@@ -22,7 +22,7 @@ to use.
 Default options are as follows:
 
 ```javascript
-var brickPi = new BrickPi({
+var brickPi = new BrickPi.Board({
     baudrate: 500000, // the speed of the connection to the BrickPi
     timeout: 10000, // stop the motors if no communication is received in this time period (ms)
     debug: false // whether to print verbose debug output
